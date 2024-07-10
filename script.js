@@ -1,23 +1,41 @@
 document.getElementById('cepInput').addEventListener('keypress', function(event) {
     if (event.key === 'Enter') {
-        const cep = event.target.value;
+        const cep = event.target.value.trim();
+        const cepOutput = document.getElementById('cepOutput');
+        const loading = document.getElementById('loading');
+
+        if (cep.length !== 8 || isNaN(cep)) {
+            cepOutput.textContent = 'Por favor, insira um CEP válido de 8 dígitos.';
+            return;
+        }
+
+        loading.style.display = 'block';
+        cepOutput.textContent = '';
+
         fetch(`https://viacep.com.br/ws/${cep}/json/`)
             .then(response => response.json())
             .then(data => {
+                loading.style.display = 'none';
                 if (data.erro) {
-                    document.getElementById('cepOutput').textContent = 'CEP não encontrado';
+                    cepOutput.textContent = 'CEP não encontrado';
                 } else {
-                    document.getElementById('cepOutput').innerHTML = `
-                        <div>CEP: ${data.cep}</div>
-                        <div>Logradouro: ${data.logradouro}</div>
-                        <div>Bairro: ${data.bairro}</div>
-                        <div>Cidade: ${data.localidade}</div>
-                        <div>Estado: ${data.uf}</div>
+                    const cepFormatado = data.cep.replace(/[^0-9a-zA-Z]/g, '');
+                    const logradouroFormatado = data.logradouro.replace(/[^0-9a-zA-Z ]/g, '');
+                    const bairroFormatado = data.bairro.replace(/[^0-9a-zA-Z ]/g, '');
+                    const localidadeFormatada = data.localidade.replace(/[^0-9a-zA-Z ]/g, '');
+                    const ufFormatada = data.uf.replace(/[^0-9a-zA-Z]/g, '');
+                    cepOutput.innerHTML = `
+                        <div>CEP: ${cepFormatado}</div>
+                        <div>Logradouro: ${logradouroFormatado}</div>
+                        <div>Bairro: ${bairroFormatado}</div>
+                        <div>Cidade: ${localidadeFormatada}</div>
+                        <div>Estado: ${ufFormatada}</div>
                     `;
                 }
             })
             .catch(error => {
-                document.getElementById('cepOutput').textContent = 'Erro ao buscar CEP';
+                loading.style.display = 'none';
+                cepOutput.textContent = 'Erro ao buscar CEP';
                 console.error('Erro:', error);
             });
     }
