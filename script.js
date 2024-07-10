@@ -19,11 +19,16 @@ document.getElementById('cepInput').addEventListener('keypress', function(event)
                 if (data.erro) {
                     cepOutput.textContent = 'CEP não encontrado';
                 } else {
-                    const cepFormatado = data.cep.replace(/[^0-9a-zA-Z]/g, '');
-                    const logradouroFormatado = data.logradouro.replace(/[^0-9a-zA-Z ]/g, '');
-                    const bairroFormatado = data.bairro.replace(/[^0-9a-zA-Z ]/g, '');
-                    const localidadeFormatada = data.localidade.replace(/[^0-9a-zA-Z ]/g, '');
-                    const ufFormatada = data.uf.replace(/[^0-9a-zA-Z]/g, '');
+                    const removeAccents = (str) => {
+                        return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    };
+
+                    const cepFormatado = data.cep.replace('-', '');
+                    const logradouroFormatado = removeAccents(data.logradouro);
+                    const bairroFormatado = removeAccents(data.bairro);
+                    const localidadeFormatada = removeAccents(data.localidade);
+                    const ufFormatada = removeAccents(data.uf);
+
                     cepOutput.innerHTML = `
                         <div>CEP: ${cepFormatado}</div>
                         <div>Logradouro: ${logradouroFormatado}</div>
